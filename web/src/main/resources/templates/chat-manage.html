@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <title>Chat management </title>
+
+    <div th:replace="fragments/header :: header-css"/>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"/>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="input-group">
+                <input type="text" class="form-control " id="add-bad-word">
+                <span class="input-group-btn">
+            <button class="btn btn-default" type="button" onclick="addWord()">Add</button>
+          </span>
+            </div>
+        </div>
+    </div>
+    <div class="overflow-auto bad-word-container">
+
+
+    </div>
+
+
+</div>
+
+<div th:replace="fragments/footer :: footer"/>
+
+<script>
+    $(document).ready(function() {
+        $.get("http://localhost:8085/admin/listBadWord", function (data, status) {
+            showWords(data);
+        });
+    });
+
+    function addWord() {
+    var div = '<div class="row message-text ">\n'
+        + $('#add-bad-word').val()
+        +'</div> '
+
+        $('#bad-word-container').append(div);
+        $.post("http://localhost:8085/admin/addBadWord",
+            {
+                word : $('#add-bad-word').val()
+            },
+            function(data, status){
+                alert("Data: " + data + "\nStatus: " + status);
+            });
+        $('#add-bad-word').val("");
+    }
+
+    function showWords(data) {
+        for (let i = 0; i <data.length ; i++) {
+            var div = '<div class="row message-text ">\n'
+                + data[i].word
+            +'</div> '
+
+            $('.bad-word-container').append(div);
+        }
+    }
+</script>
+</body>
+</html>

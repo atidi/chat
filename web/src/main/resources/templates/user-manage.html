@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="fragments/header :: header-css"/>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"/>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+
+            <h1>Create User</h1>
+            <form th:action="@{/admin/createUser}" th:object="${user}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="firstName" class="control-label">First name</label>
+                    <input id="firstName"
+                           class="form-control"
+                           th:field="*{firstName}"/>
+                    <span  th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"
+                           class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName" class="control-label">Last name</label>
+                    <input id="lastName"
+                           class="form-control"
+                           th:field="*{lastName}"/>
+                    <span  th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"
+                           class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email" class="control-label">E-mail</label>
+                    <input id="email"
+                           class="form-control"
+                           th:field="*{email}"/>
+                    <span  th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+                            class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="control-label">Password</label>
+                    <input id="password"
+                           class="form-control"
+                           type="password"
+                           th:field="*{password}"/>
+                    <ul class="text-danger" th:each="error: ${#fields.errors('password')}">
+                        <li th:each="message : ${error.split(',')}">
+                            <p class="error-message" th:text="${message}"></p>
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" class="control-label">Confirm password</label>
+                    <input id="confirmPassword"
+                           class="form-control"
+                           type="password"
+                           th:field="*{confirmPassword}"/>
+                    <ul class="text-danger" th:each="error: ${#fields.errors('confirmPassword')}">
+                        <li th:each="message : ${error.split(',')}">
+                            <p class="error-message" th:text="${message}"></p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-group"  th:switch="${user.id}">
+                    <label for="role" class="control-label">Roles</label>
+                    <ul th:case="null">
+                        <li th:each="r : ${allRoles}">
+                            <input type="checkbox" th:field="*{roles}" th:value="${r.role}"/>
+                            <label  th:text="${r.role}"></label>
+                        </li>
+                    </ul>
+                    <ul th:case="*">
+                        <li th:each="r : ${allRoles}">
+                            <input type="checkbox" th:field="*{roles}" th:checked="${true}" th:value="${r.role}"/>
+                            <label  th:text="${r.role}"></label>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="image" class="control-label">Image</label>
+                    <input id="image"
+                           class="form-control"
+                           type="file"
+                           name="file"
+                           />
+
+                </div>
+                <button id="btnDelete">Delete</button>
+                <div id="image-holder"> </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#btnDelete").hide();
+
+            $("#btnDelete").on("click",function(){
+                $(".img-thumbnail").remove();
+            });
+
+            $("#image").on('change', function() {
+                //Get count of selected files
+                var countFiles = $(this)[0].files.length;
+                var imgPath = $(this)[0].value;
+                var extn = imgPath.substring(imgPath.lastIndexOf('.') + 1).toLowerCase();
+                var image_holder = $("#image-holder");
+                image_holder.empty();
+                if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg") {
+                    if (typeof(FileReader) != "undefined") {
+                        for (var i = 0; i < countFiles; i++)
+                        {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                $("<img />", {
+                                    "src": e.target.result,
+                                    "class": "img-thumbnail"
+                                }).appendTo(image_holder);
+                            }
+                            image_holder.show();
+                            $("#btnDelete").show();
+                            reader.readAsDataURL($(this)[0].files[i]);
+                        }
+                    } else {
+                        alert("This browser does not support FileReader.");
+                    }
+                } else {
+                    alert("Pls select only images");
+                }
+            });
+        });
+    </script>
+</div>
+
+<div th:replace="fragments/footer :: footer"/>
+
+</body>
+</html>
